@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login y Registro</title>
+    <link rel="stylesheet" href="../static/css/index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../static/image/ico.png">
+</head>
+<body>
+
+    <div class="container">
+        <img src="../static/image/Usuario.png" alt="image">
+        <h2 id="title">Login</h2>
+        <p id="mensaje" class="hidden"></p>
+        <form id="formulario">
+            <input type="text" id="nameInput" class="hidden" placeholder="Nombre">
+            <input type="text" id="apellidoInput" class="hidden" placeholder="Apellido">
+            <input type="text" id="telefono" class="hidden" placeholder="Teléfono">
+            <input type="password" id="password" placeholder="Contraseña">
+            <input type="password" id="confirmPassword" class="hidden" placeholder="Confirmar Contraseña">
+            <button type="submit" id="loginBtn">Iniciar Sesión</button>
+        </form>
+        <p id="toggleForm">Registrar</p>
+    </div>
+
+    <script src="../static/js/index.js"></script>
+</body>
+</html>

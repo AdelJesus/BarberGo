@@ -1,0 +1,307 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background-color: #ffffff;
+    color: black;
+    padding: 5px;
+    font-size: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px #c4914a;
+    position: fixed;
+    width: 100%;
+    top: 0;
+}
+img{
+    width: 100%;
+    height: 424px;
+    border-radius: 20px;
+}
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+.servicio h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.servicio p {
+    font-size: 19px;
+    color: #000000;
+    margin: 5px 0;
+}
+
+.servicio .nombre {
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.servicio .precio {
+    font-size: 19px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.servicio button {
+    background-color: #c4914a;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    font-size: 14px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.servicio button:hover {
+    background-color: #b47113;
+    transform: scale(1.05);
+}
+
+p {
+    font-size: 18px;
+    color: #333;
+}
+.servicios-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 120px;
+}
+
+.servicios-container::before{
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -1;
+    background: url('../image/servicio-barberia-barba-bigote.jpg') no-repeat center center/cover;
+}
+
+h3{
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    font-size: 60px;
+    font-weight: bold;
+}
+
+.servicio {
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 15px;
+    margin: 15px auto;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+@media (min-width: 768px) {
+    .servicios-container {
+        flex-direction: row;
+        justify-content: center;
+    }
+}
+
+/* Estilos para el modal de calificación */
+.modal-calificacion {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-calificacion .modal-contenido {
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 24px;
+    position: relative;
+}
+
+.modal-calificacion .cerrar-modal {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-calificacion .cerrar-modal:hover,
+.modal-calificacion .cerrar-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-calificacion label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.modal-calificacion input[type=number],
+.modal-calificacion textarea {
+    width: calc(100% - 12px);
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 18px;
+    box-sizing: border-box;
+}
+
+.modal-calificacion button#enviarCalificacion {
+    background-color: #c4914a;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 13px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.modal-calificacion button#enviarCalificacion:hover{
+    background-color: #b47113;
+    transform: scale(1.05);
+}
+
+/* Estilos para el modal de comentarios */
+.modal-comentarios {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.modal-comentarios .modal-contenido {
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 700px;
+    border-radius: 24px;
+    position: relative;
+}
+
+.modal-contenido h3{
+    color: black;
+    font-size: 24px;
+    text-shadow: none;
+}
+
+.modal-comentarios .cerrar-modal {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-comentarios .cerrar-modal:hover,
+.modal-comentarios .cerrar-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-comentarios h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    color: black;
+    font-size: 24px;
+}
+
+.modal-comentarios .lista-comentarios {
+    margin-top: 15px;
+}
+
+.modal-comentarios .comentario {
+    border: 1px solid #eee;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 18px;
+    background-color: #f9f9f9;
+}
+
+.modal-comentarios .comentario p:first-child {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.modal-comentarios .comentario .fecha {
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 5px;
+    text-align: right;
+}
+
+.galeria-container {
+    column-count: 3;
+    column-gap: 1rem;
+    padding: 1rem;
+}
+
+.galeria-container img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    display: block;
+    break-inside: avoid;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.galeria-container img:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 2 columnas desde tablets hasta movil */
+@media (max-width: 1024px) {
+    .galeria-container {
+        column-count: 2;
+    }
+}
+
+/*1 columna solo en pantallas muy pequeñas */
+@media (max-width: 400px) {
+    .galeria-container {
+        column-count: 2;
+    }
+}

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarberGo</title>
+    <link rel="stylesheet" href="../static/css/inicio.css">
+    <link rel="icon" href="../static/image/ico.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="#inicio"><img src="../static/image/Logo Final.png" alt="Logo de BarberGo"></a>
+        </div>
+        <div class="contenedor-perfil">
+            <div id="menuFlotante" class="menu-flotante">
+                <p id="bienvenidaCliente">Bienvenido, <span id="nombreCliente"></span></p>
+                <hr>
+                <ul>
+                    <li><button id="btnVerPerfil">Ver Perfil</button></li>
+                    <li><button id="btnHistorial">Ver Historial de Citas</button></li>
+                    <li><button id="btnNotificaciones">Notificaciones</button></li>
+                    <li><button id="btnCerrarSesion">Cerrar Sesión</button></li>
+                </ul>
+            </div>
+        </div>
+        <nav>
+            <button class="menu-toggle">☰</button>
+            <ul class="nav-links">
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#barberos">Barberos</a></li>
+                <li><a href="#ubicacion">Ubicacion</a></li>
+                <li><a id="perfilBtn">Perfil</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="modalPerfil" class="modal">
+        <div class="modal-contenido">
+            <span id="cerrarModal" class="cerrar">&times;</span>
+            <h2>Perfil</h2>
+            <form id="formPerfil">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" disabled>
+    
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" disabled>
+    
+                <label for="telefono">Teléfono:</label>
+                <input type="text" id="telefono" disabled>
+    
+                <button type="button" id="editarPerfilBtn">Editar Perfil</button>
+                <button type="submit" id="guardarPerfilBtn" style="display: none;">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalHistorial" class="modal-c">
+        <div class="modal-cd">
+            <span id="cerrarModalHistorial" class="cerrar">&times;</span>
+            <h2>Historial de Citas Reservadas</h2>
+            <div class="tabla-container">
+                <table id="tablaHistorial">
+                    <thead>
+                        <tr>
+                            <th>Barbero</th>
+                            <th>Servicio</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <section id="inicio" class="main-section">
+        <h1>Tu cabello, tu identidad, tu estilo.</h1>
+    </section>
+
+    <section id="info" class="scroll-section">
+        <p>Bienvenido a BarberGo, donde transformamos tu estilo con cortes de calidad. Reserva tu cita y luce increíble.</p>
+    </section>
+
+    <section id="servicios" class="content-section">
+        <h2>Nuestros Servicios</h2>
+        <div class="carousel">
+            <div class="carousel-container">
+                <div class="carousel-slide">
+                    <a href="servicios.html?tipo=cabello"><img src="../static/image/Pelo.jpg" alt="Cabello"></a>
+                    <h3>Cabello</h3>
+                </div>
+                <div class="carousel-slide">
+                    <a href="servicios.html?tipo=barba"><img src="../static/image/barba.jpg" alt="Barba"></a> 
+                    <h3>Barba</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="barberos" class="content-section">
+        <h2>Nuestros Barberos</h2>
+        <div class="tabla-container">
+            <table id="tablaBarberos">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Calificación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="ubicacion" class="content-section">
+        <h2>¿Donde estamos ubicados?</h2>
+        <p>Nos encontramos en la mejor zona de la ciudad. Visítanos en nuestra dirección.</p>
+        <div class="map-container">
+            <iframe 
+                src="https://www.google.com/maps/d/u/2/embed?mid=1Fz_FyFMdvEALIf0234-uHaEETRj1aK4&ehbc=2E312F" 
+                width="100%" 
+                height="400" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy">
+            </iframe>
+    </section>
+
+    <script src="../static/js/inicio.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservar Cita - BarberGo</title>
+    <link rel="stylesheet" href="../static/css/reservar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../static/image/ico.png">
+</head>
+<body>
+    <header>
+        <h1>Agenda tu Cita</h1>
+    </header>
+    
+    <main>
+        <section id="reserva">
+            <label for="fecha">Selecciona una fecha:</label>
+            <input type="date" id="fecha" name="fecha">
+            
+            <label for="hora">Selecciona una hora:</label>
+            <input type="time" id="hora" name="hora">
+
+            <label for="barbero">Selecciona un barbero:</label>
+            <select id="barbero" name="barbero">
+                <option value="">Selecciona un barbero</option>
+            </select>
+            <p id="mensaje"></p>
+            <button id="botonconfirmar">Confirmar Reserva</button>
+        </section>
+    </main>
+    <script src="../static/js/reservar.js"></script>
+</body>
+</html>
