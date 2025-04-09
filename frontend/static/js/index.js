@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     
         const ruta = isLogin ? "/login" : "/registro";
-        const respuesta = await fetch(`http://127.0.0.1:5000${ruta}`, {
+        const respuesta = await fetch(ruta, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(datos)
