@@ -23,7 +23,7 @@ def get_db_connection():
 #inicio.html
 @app.route('/')
 def index():
-    return render_template('inicio.html')
+    return "<h1>Hola desde Flask en Railway</h1>"
 
 @app.route('/loguear')
 def aloguear():
