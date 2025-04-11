@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const correo = document.getElementById("correo-barbero").value.trim();
             const password = document.getElementById("password-barbero").value.trim();
 
-            if (!correo.value.includes("@")) {
+            if (!correo.includes("@")) {
                 mensajeBarbero.textContent = "El correo esta mal escrito";
                 mensajeBarbero.style.color = "red";
                 mensajeBarbero.classList.remove("hidden");
