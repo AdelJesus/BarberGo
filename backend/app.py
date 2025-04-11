@@ -202,7 +202,7 @@ def login():
                 return jsonify({"error": "Debes verificar tu correo antes de iniciar sesión."}), 401
 
             if barbero["password"] == password:
-                session["barbero_id"] = barbero["id"]
+                session["user_id"] = barbero["id"]
                 session['rol'] = 'admin'
                 return jsonify({"mensaje": "Inicio de sesión exitoso", "rol": "admin", "nombre": barbero["nombre"]})
             else:
