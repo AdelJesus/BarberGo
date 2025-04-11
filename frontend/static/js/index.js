@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const title = document.getElementById("title");
     const nameInput = document.getElementById("nameInput");
     const apellidoInput = document.getElementById("apellidoInput");
-    const telefonoInput = document.getElementById("telefono");
+    const correoInput = document.getElementById("correo");
     const passwordInput = document.getElementById("password");
     const confirmPasswordInput = document.getElementById("confirmPassword");
     const toggleForm = document.getElementById("toggleForm");
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
         title.textContent = "Login";
         nameInput.classList.add("hidden");
         apellidoInput.classList.add("hidden");
-        telefonoInput.classList.remove("hidden");
+        correoInput.classList.remove("hidden");
         confirmPasswordInput.classList.add("hidden");
         loginBtn.textContent = "Iniciar Sesión";
         toggleForm.textContent = "Registrar";
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
         title.textContent = "Registro";
         nameInput.classList.remove("hidden");
         apellidoInput.classList.remove("hidden");
-        telefonoInput.classList.remove("hidden");
+        correoInput.classList.remove("hidden");
         confirmPasswordInput.classList.remove("hidden");
         loginBtn.textContent = "Registrar";
         toggleForm.textContent = "Login";
@@ -50,8 +50,8 @@ document.addEventListener("DOMContentLoaded", function () {
     form.addEventListener("submit", async function (e) {
         e.preventDefault();
         if (!isLogin) {
-            if (telefonoInput.value.length !== 10) {
-                mostrarMensaje("El número de teléfono debe tener exactamente 10 dígitos.");
+            if (!correoInput.value.includes("@")) {
+                mostrarMensaje("El correo esta mal escrito");
                 return;
             }
             if (passwordInput.value !== confirmPasswordInput.value) {
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const datos = {
             nombre: nameInput.value,
             apellido: apellidoInput.value,
-            telefono: telefonoInput.value,
+            correo: correoInput.value,
             password: passwordInput.value
         };
     

@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
     const servicio_id = params.get("servicioId");
-    console.log("Servicio ID recibido:", servicio_id);
 
     // Establecer fecha mínima como hoy
     const fechaInput = document.getElementById("fecha");

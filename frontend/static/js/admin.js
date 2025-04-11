@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (respuesta.ok) {
             document.getElementById("name-barbero").textContent = datos.nombre;
             document.getElementById("lastname-barbero").textContent = datos.apellido;
-            document.getElementById("phone-barbero").textContent = datos.telefono;
+            document.getElementById("email-barbero").textContent = datos.correo;
         }
     }
     cargarPerfil();
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
             fila.innerHTML = `
                 <td>${barbero.nombre}</td>
                 <td>${barbero.apellido}</td>
-                <td>${barbero.telefono}</td>
+                <td>${barbero.correo}</td>
                 <td><button class="eliminar-barbero" data-id="${barbero.id}">Eliminar</button></td>
             `;
             tabla.appendChild(fila);
@@ -100,17 +100,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const nombre = document.getElementById("nombre-barbero").value.trim();
             const apellido = document.getElementById("apellido-barbero").value.trim();
-            const telefono = document.getElementById("telefono-barbero").value.trim();
+            const correo = document.getElementById("correo-barbero").value.trim();
             const password = document.getElementById("password-barbero").value.trim();
 
-            if (telefono.length < 10 || telefono.length > 10) {
-                mensajeBarbero.textContent = "El número de teléfono debe tener 10 dígitos.";
+            if (!correo.value.includes("@")) {
+                mensajeBarbero.textContent = "El correo esta mal escrito";
                 mensajeBarbero.style.color = "red";
                 mensajeBarbero.classList.remove("hidden");
                 return;
             }
 
-            const datos = { nombre, apellido, telefono, password };
+            const datos = { nombre, apellido, correo, password };
 
             const respuesta = await fetch("/registrar_barbero", {
                 method: "POST",
@@ -145,19 +145,19 @@ document.addEventListener("DOMContentLoaded", function () {
             const mensaje = document.getElementById("mensaje-perfil");
             const nombre = document.getElementById("nombre").value.trim();
             const apellido = document.getElementById("apellido").value.trim();
-            const telefono = document.getElementById("telefono").value.trim();
+            const correo = document.getElementById("correo").value.trim();
             const password = document.getElementById("password").value.trim();
 
             mensaje.textContent = "";
             mensaje.style.color = "";
 
-            if (telefono.length < 10 || telefono.length > 10) {
-                mensaje.textContent = "Numero de telefono muy corto";
+            if (!correo.value.includes("@")) {
+                mensaje.textContent = "El correo esta mal escrito";
                 mensaje.style.color = "red";
                 return;
             }
 
-            const datos = { nombre, apellido, telefono, password };
+            const datos = { nombre, apellido, correo, password };
 
             const respuesta = await fetch("/actualizar_perfil", {
                 method: "POST",
@@ -209,7 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     fila.innerHTML = `
                         <td>${cliente.nombre}</td>
                         <td>${cliente.apellido}</td>
-                        <td>${cliente.telefono}</td>
+                        <td>${cliente.correo}</td>
                     `;
                     tablaClientes.appendChild(fila);
                 });
@@ -315,7 +315,6 @@ document.addEventListener("DOMContentLoaded", function () {
     async function cargarCalificacionComentarios() {
         const respuesta = await fetch("/get_calificacion_comentarios_barbero");
         const datos = await respuesta.json();
-        console.log("Respuesta completa de /get_calificacion_comentarios_barbero:", datos);
         const calificacionPromedioSpan = document.getElementById("calificacion-promedio");
         const listaComentarios = document.getElementById("lista-comentarios-barbero");
         const mensajeSinComentarios = document.getElementById("mensaje-sin-comentarios");
@@ -343,7 +342,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 mensajeSinComentarios.style.display = "block";
             }
         } else {
-            console.error("Error al cargar la calificación y comentarios.");
             calificacionPromedioSpan.textContent = "Error al cargar";
             mensajeSinComentarios.style.display = "block";
             mensajeSinComentarios.textContent = "Error al cargar los comentarios.";

@@ -1,9 +1,13 @@
 import os
+import re 
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import mysql.connector
 from datetime import datetime, timedelta
 from flask_cors import CORS
 from decimal import Decimal
+from itsdangerous import URLSafeTimedSerializer
+from email.message import EmailMessage
+import smtplib
 
 app = Flask(__name__, template_folder="../frontend/templates", static_folder="../frontend/static")
 
@@ -45,30 +49,120 @@ def registro():
     data = request.json
     nombre = data.get("nombre")
     apellido = data.get("apellido")
-    telefono = data.get("telefono")
+    correo = data.get("correo")
     password = data.get("password")
 
-    if not (nombre and apellido and telefono and password):
+    if not (nombre and apellido and correo and password):
         return jsonify({"error": "Todos los campos son obligatorios"}), 400
 
-    hashed_password = password
-
-    # Validar contraseña
-    import re  
     if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$', password):
         return jsonify({
-            "error": "La contraseña debe tener 8 caracteres mínimo, y tener al menos una letra y numero"
+            "error": "La contraseña debe tener 8 caracteres mínimo, y tener al menos una letra y número"
         }), 400
 
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO clientes (nombre, apellido, telefono, password) VALUES (%s, %s, %s, %s)",
-                       (nombre, apellido, telefono, hashed_password))
+
+        # Guardar el usuario
+        cursor.execute("INSERT INTO clientes (nombre, apellido, correo, password, verificado) VALUES (%s, %s, %s, %s, 0)",
+                       (nombre, apellido, correo, password))
         conn.commit()
-        return jsonify({"mensaje": "Registro exitoso"}), 201
+
+        # Enviar correo de verificación
+        token = serializer.dumps(correo, salt="correo-verificacion")
+        enviar_correo_verificacion(correo, token, tipo="cliente")
+
+        return jsonify({"mensaje": "Registro exitoso. Revisa tu correo para verificar tu cuenta."}), 201
+
     except mysql.connector.Error:
         return jsonify({"error": "Error al registrar usuario"}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+#registrar barbero
+@app.route('/registrar_barbero', methods=['POST'])
+def registrar_barbero():
+    if 'user_id' not in session:
+        return jsonify({"error": "No autorizado"}), 401
+    if session.get('rol') != 'admin':
+        return jsonify({"error": "No autorizado"}), 403
+
+    datos = request.json
+    nombre = datos.get('nombre')
+    apellido = datos.get('apellido')
+    correo = datos.get('correo')
+    password = datos.get('password')
+
+    if not nombre or not apellido or not correo or not password:
+        return jsonify({"error": "Todos los campos son obligatorios"}), 400
+
+    if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$', password):
+        return jsonify({
+            "error": "La contraseña debe tener 8 caracteres mínimo, y tener al menos una letra y número"
+        }), 400
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Insertar con verificado = 0
+        cursor.execute("INSERT INTO barberos (nombre, apellido, correo, password, verificado) VALUES (%s, %s, %s, %s, 0)",
+                       (nombre, apellido, correo, password))
+        conn.commit()
+
+        # Enviar correo de verificación
+        token = serializer.dumps(correo, salt="correo-verificacion")
+        enviar_correo_verificacion(correo, token, tipo="barbero")
+
+        return jsonify({"mensaje": "Barbero registrado correctamente. Verifica el correo."}), 201
+
+    except Exception as e:
+        return jsonify({"error": "Error al registrar el barbero: " + str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+#verificacion correo
+serializer = URLSafeTimedSerializer("clave-secreta-super-segura")
+def enviar_correo_verificacion(destinatario, token, tipo):
+    url = f"https://web-production-70cef.up.railway.app/verificar/{token}?tipo={tipo}"
+    asunto = "Verifica tu cuenta en BarberGo"
+    cuerpo = f"Hola, por favor haz clic en el siguiente enlace para verificar tu cuenta:\n\n{url}"
+
+    email = EmailMessage()
+    email["From"] = "barbergonoti@gmail.com"
+    email["To"] = destinatario
+    email["Subject"] = asunto
+    email.set_content(cuerpo)
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login("barbergonoti@gmail.com", "htbu oojc bqkz gskn")
+        smtp.send_message(email)
+
+#verificar
+@app.route('/verificar/<token>', methods=['GET'])
+def verificar_correo(token):
+    tipo = request.args.get("tipo")  # cliente o barbero
+    if tipo not in ["cliente", "barbero"]:
+        return "Tipo de cuenta inválido.", 400
+
+    try:
+        correo = serializer.loads(token, salt="correo-verificacion", max_age=3600)  # 1 hora de validez
+    except Exception as e:
+        return "Enlace inválido o expirado.", 400
+
+    tabla = "clientes" if tipo == "cliente" else "barberos"
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(f"UPDATE {tabla} SET verificado = 1 WHERE correo = %s", (correo,))
+        conn.commit()
+        return "✅ ¡Cuenta verificada correctamente! Ya puedes iniciar sesión."
+    except Exception as e:
+        return f"Error al verificar cuenta: {e}", 500
     finally:
         cursor.close()
         conn.close()
@@ -77,19 +171,18 @@ def registro():
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
-    telefono = data.get("telefono")
+    correo = data.get("correo")
     password = data.get("password")
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM clientes WHERE telefono = %s", (telefono,))
+    cursor.execute("SELECT * FROM clientes WHERE correo = %s", (correo,))
     cliente = cursor.fetchone()
 
-    cursor.execute("SELECT * FROM barberos WHERE telefono = %s", (telefono,))
+    cursor.execute("SELECT * FROM barberos WHERE correo = %s", (correo,))
     barbero = cursor.fetchone()
 
-    # Validar contraseña
-    import re  
+    # Validar contraseña 
     if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$', password):
         return jsonify({
             "error": "La contraseña debe tener 8 caracteres mínimo, y tener al menos una letra y numero"
@@ -97,18 +190,31 @@ def login():
 
     cursor.close()
     conn.close()
-    if cliente and cliente["password"] == password:
-        session['user_id'] = cliente["id"]
-        session['nombre'] = cliente["nombre"]
-        session['rol'] = 'cliente'
-        return jsonify({"mensaje": "Inicio de sesión exitoso", "rol": "cliente", "nombre": cliente["nombre"]})
-    elif barbero and barbero["password"] == password:
-        session['user_id'] = barbero["id"]
-        session['nombre'] = barbero["nombre"]
-        session['rol'] = 'admin'
-        return jsonify({"mensaje": "Inicio de sesión exitoso", "rol": "admin", "nombre": barbero["nombre"]})
-    else:
-        return jsonify({"error": "Teléfono o contraseña incorrectos"}), 401
+    if cliente:
+        if cliente["verificado"] != 1:
+            return jsonify({"error": "Debes verificar tu correo antes de iniciar sesión."}), 401
+
+        if cliente["password"] == password:
+            session["cliente_id"] = cliente["id"]
+            return jsonify({"rol": "cliente"})
+        else:
+            return jsonify({"error": "Contraseña incorrecta"}), 401
+
+    # Intentar login como barbero
+    cursor.execute("SELECT * FROM barberos WHERE correo = %s", (correo,))
+    barbero = cursor.fetchone()
+
+    if barbero:
+        if barbero["verificado"] != 1:
+            return jsonify({"error": "Debes verificar tu correo antes de iniciar sesión."}), 401
+
+        if barbero["password"] == password:
+            session["barbero_id"] = barbero["id"]
+            return jsonify({"rol": "barbero"})
+        else:
+            return jsonify({"error": "Contraseña incorrecta"}), 401
+
+    return jsonify({"error": "Usuario no encontrado"}), 404
 
 #Ruta del administrador
 @app.route('/admin')
@@ -120,7 +226,7 @@ def admin():
     
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, nombre, telefono FROM clientes")
+    cursor.execute("SELECT id, nombre, correo FROM clientes")
     clientes = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -135,7 +241,7 @@ def inicio():
     
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, nombre, telefono FROM clientes WHERE telefono = %s", (session['user_id'],))
+    cursor.execute("SELECT id, nombre, correo FROM clientes WHERE correo = %s", (session['user_id'],))
     cliente = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -157,7 +263,7 @@ def mostrar_info():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT nombre, apellido, telefono FROM barberos WHERE id = %s", (session['user_id'],))
+    cursor.execute("SELECT nombre, apellido, correo FROM barberos WHERE id = %s", (session['user_id'],))
     barbero = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -176,7 +282,7 @@ def lista_barberos():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, nombre, apellido, telefono FROM barberos WHERE id != %s", (session['user_id'],))
+    cursor.execute("SELECT id, nombre, apellido, correo FROM barberos WHERE id != %s", (session['user_id'],))
     barberos = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -214,50 +320,12 @@ def get_clientes():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT nombre, apellido, telefono FROM clientes")  
+    cursor.execute("SELECT nombre, apellido, correo FROM clientes")  
     clientes = cursor.fetchall()
     cursor.close()
     conn.close()
 
     return jsonify(clientes)
-
-#registrar barbero
-@app.route('/registrar_barbero', methods=['POST'])
-def registrar_barbero():
-    if 'user_id' not in session:
-        return jsonify({"error": "No autorizado"}), 401
-    if session.get('rol') != 'admin':
-        return jsonify({"error": "No autorizado"}), 403
-
-    datos = request.json
-    nombre = datos.get('nombre')
-    apellido = datos.get('apellido')
-    telefono = datos.get('telefono')
-    password = datos.get('password')
-
-    if not nombre or not apellido or not telefono or not password:
-        return jsonify({"error": "Todos los campos son obligatorios"}), 400
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    # Validar contraseña
-    import re  
-    if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$', password):
-        return jsonify({
-            "error": "La contraseña debe tener 8 caracteres mínimo, y tener al menos una letra y numero"
-        }), 400
-
-    try:
-        cursor.execute("INSERT INTO barberos (nombre, apellido, telefono, password) VALUES (%s, %s, %s, %s)",
-                       (nombre, apellido, telefono, password))
-        conn.commit()
-        return jsonify({"mensaje": "Barbero registrado correctamente"}), 201
-    except Exception as e:
-        return jsonify({"error": "Error al registrar el barbero: " + str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
 
 #Actualizar perfil
 @app.route('/actualizar_perfil', methods=['POST'])
@@ -270,18 +338,18 @@ def actualizar_perfil():
     datos = request.json
     nombre = datos.get('nombre')
     apellido = datos.get('apellido')
-    telefono = datos.get('telefono')
+    correo = datos.get('correo')
     password = datos.get('password')
 
-    if not nombre or not apellido or not telefono:
-        return jsonify({"error": "nombre, apellido y telefono son obligatorio"}), 400
+    if not nombre or not apellido or not correo:
+        return jsonify({"error": "nombre, apellido y correo son obligatorio"}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
-        cursor.execute("UPDATE barberos SET nombre = %s, apellido = %s, telefono = %s, password = %s WHERE id = %s",
-               (nombre, apellido, telefono, password, session['user_id']))
+        cursor.execute("UPDATE barberos SET nombre = %s, apellido = %s, correo = %s, password = %s WHERE id = %s",
+               (nombre, apellido, correo, password, session['user_id']))
         conn.commit()
         return jsonify({"mensaje": "Perfil actualizado correctamente"})
     except Exception as e:
@@ -298,7 +366,7 @@ def get_cliente():
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT nombre, apellido, telefono FROM clientes WHERE id = %s", (session['user_id'],))
+    cursor.execute("SELECT nombre, apellido, correo FROM clientes WHERE id = %s", (session['user_id'],))
     cliente = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -314,18 +382,18 @@ def actualizar_perfil_cliente():
     datos = request.json
     nombre = datos.get('nombre')
     apellido = datos.get('apellido')
-    telefono = datos.get('telefono')
+    correo = datos.get('correo')
 
-    if not nombre or not apellido or not telefono:
-        return jsonify({"error": "Nombre, apellido y teléfono son obligatorios"}), 400
+    if not nombre or not apellido or not correo:
+        return jsonify({"error": "Nombre, apellido y correo son obligatorios"}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
         cursor.execute(
-            "UPDATE clientes SET nombre = %s, apellido = %s, telefono = %s WHERE id = %s",
-            (nombre, apellido, telefono, session['user_id'])
+            "UPDATE clientes SET nombre = %s, apellido = %s, correo = %s WHERE id = %s",
+            (nombre, apellido, correo, session['user_id'])
         )
         
         conn.commit()
@@ -885,6 +953,7 @@ def obtener_estadisticas():
     return jsonify(estadisticas)
 
 #Notificaciones del barbero
+
 @app.route('/get_notificaciones_barbero')
 def get_notificaciones_barbero():
     if 'user_id' not in session or session.get('rol') != 'admin':

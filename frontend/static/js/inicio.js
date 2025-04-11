@@ -98,7 +98,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             actualizarInterfaz(data.esta_logueado);
-            console.log("Data de sesión:", data);
             const nombreClienteElement = document.getElementById("nombreCliente");
             console.log("Elemento nombreCliente:", nombreClienteElement);
             if (data.esta_logueado && data.nombre) {
@@ -120,11 +119,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(data => {
                     document.getElementById("nombre").value = data.nombre;
                     document.getElementById("apellido").value = data.apellido;
-                    document.getElementById("telefono").value = data.telefono;
+                    document.getElementById("correo").value = data.correo;
 
                     document.getElementById("nombre").disabled = true;
                     document.getElementById("apellido").disabled = true;
-                    document.getElementById("telefono").disabled = true;
+                    document.getElementById("correo").disabled = true;
 
                     editarPerfilBtn.style.display = "inline-block";
                     guardarPerfilBtn.style.display = "none";
@@ -153,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
     editarPerfilBtn.addEventListener("click", function () {
         document.getElementById("nombre").disabled = false;
         document.getElementById("apellido").disabled = false;
-        document.getElementById("telefono").disabled = false;
+        document.getElementById("correo").disabled = false;
         editarPerfilBtn.style.display = "none";
         guardarPerfilBtn.style.display = "inline-block";
     });
@@ -164,10 +163,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const nombre = document.getElementById("nombre").value.trim();
         const apellido = document.getElementById("apellido").value.trim();
-        const telefono = document.getElementById("telefono").value.trim();
+        const correo = document.getElementById("correo").value.trim();
 
-        if (telefono.length !== 10) {
-            mensajePerfil.textContent = "Número de teléfono inválido (debe tener 10 dígitos).";
+        if (!correo.value.includes("@")) {
+            mensajePerfil.textContent = "El correo esta mal escrito.";
             mensajePerfil.style.color = "red";
             return;
         }
@@ -175,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const respuesta = await fetch("/actualizar_perfil_cliente", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nombre, apellido, telefono })
+            body: JSON.stringify({ nombre, apellido, correo })
         });
 
         if (respuesta.ok) {
