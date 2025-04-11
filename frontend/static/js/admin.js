@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
             mensaje.textContent = "";
             mensaje.style.color = "";
 
-            if (!correo.value.includes("@")) {
+            if (!correo.includes("@")) {
                 mensaje.textContent = "El correo esta mal escrito";
                 mensaje.style.color = "red";
                 return;

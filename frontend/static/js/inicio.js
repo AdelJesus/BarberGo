@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const apellido = document.getElementById("apellido").value.trim();
         const correo = document.getElementById("correo").value.trim();
 
-        if (!correo.value.includes("@")) {
+        if (!correo.includes("@")) {
             mensajePerfil.textContent = "El correo esta mal escrito.";
             mensajePerfil.style.color = "red";
             return;

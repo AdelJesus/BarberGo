@@ -533,6 +533,16 @@ def crear_cita():
             VALUES (%s, %s)
         """, (cliente_id, mensaje_cliente))
 
+        # Obtener correo del barbero
+        cursor.execute("SELECT correo FROM barberos WHERE id = %s", (barbero_id,))
+        barbero_data = cursor.fetchone()
+        barbero_correo = barbero_data[0] if barbero_data else None
+
+        if barbero_correo:
+            asunto = "Nueva reserva recibida en BarberGo"
+            cuerpo = f"{cliente_nombre} ha reservado el servicio '{servicio_nombre}' para el {fecha} a las {hora}.\n\nPor favor ingresa a BarberGo para confirmar o rechazar esta solicitud."
+            enviar_notificacion_email(barbero_correo, asunto, cuerpo)
+
         conn.commit()
         cursor.close()
         conn.close()
@@ -670,6 +680,15 @@ def actualizar_cita(cita_id):
                         INSERT INTO notificaciones (cliente_id, mensaje)
                         VALUES (%s, %s)
                     """, (cliente_id, mensaje_cliente))
+                    # Obtener correo del cliente
+                    cursor.execute("SELECT correo FROM clientes WHERE id = %s", (cliente_id,))
+                    cliente_data = cursor.fetchone()
+                    cliente_correo = cliente_data[0] if cliente_data else None
+
+                    if cliente_correo:
+                        asunto = "Actualización de tu cita en BarberGo"
+                        cuerpo = mensaje_cliente  # Ya contiene el mensaje con servicio, fecha y estado
+                        enviar_notificacion_email(cliente_correo, asunto, cuerpo)
                     conn.commit()
 
         return jsonify({"mensaje": "Estado de la cita actualizado correctamente"})
@@ -996,6 +1015,17 @@ def get_notificaciones_cliente():
     finally:
         cursor.close()
         conn.close()
+
+def enviar_notificacion_email(destinatario, asunto, cuerpo):
+    email = EmailMessage()
+    email["From"] = "barbergonoti@gmail.com"
+    email["To"] = destinatario
+    email["Subject"] = asunto
+    email.set_content(cuerpo)
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+        smtp.login("barbergonoti@gmail.com", "htbu oojc bqkz gskn")
+        smtp.send_message(email)
 
 # Cerrar sesión
 @app.route('/logout')
