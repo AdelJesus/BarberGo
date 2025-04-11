@@ -168,53 +168,55 @@ def verificar_correo(token):
         conn.close()
 
 #Login de usuario
-@app.route('/login', methods=['POST'])
+@app.route("/login", methods=["POST"])
 def login():
-    data = request.json
+    data = request.get_json()
     correo = data.get("correo")
     password = data.get("password")
 
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM clientes WHERE correo = %s", (correo,))
-    cliente = cursor.fetchone()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM barberos WHERE correo = %s", (correo,))
-    barbero = cursor.fetchone()
+        # Buscar cliente
+        cursor.execute("SELECT * FROM clientes WHERE correo = %s", (correo,))
+        cliente = cursor.fetchone()
 
-    # Validar contraseña 
-    if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,20}$', password):
-        return jsonify({
-            "error": "La contraseña debe tener 8 caracteres mínimo, y tener al menos una letra y numero"
-        }), 400
+        if cliente:
+            if cliente["verificado"] != 1:
+                return jsonify({"error": "Debes verificar tu correo antes de iniciar sesión."}), 401
 
-    cursor.close()
-    conn.close()
-    if cliente:
-        if cliente["verificado"] != 1:
-            return jsonify({"error": "Debes verificar tu correo antes de iniciar sesión."}), 401
+            if cliente["password"] == password:
+                session["cliente_id"] = cliente["id"]
+                return jsonify({"rol": "cliente"})
+            else:
+                return jsonify({"error": "Contraseña incorrecta"}), 401
 
-        if cliente["password"] == password:
-            session["cliente_id"] = cliente["id"]
-            return jsonify({"rol": "cliente"})
-        else:
-            return jsonify({"error": "Contraseña incorrecta"}), 401
+        # Buscar barbero
+        cursor.execute("SELECT * FROM barberos WHERE correo = %s", (correo,))
+        barbero = cursor.fetchone()
 
-    # Intentar login como barbero
-    cursor.execute("SELECT * FROM barberos WHERE correo = %s", (correo,))
-    barbero = cursor.fetchone()
+        if barbero:
+            if barbero["verificado"] != 1:
+                return jsonify({"error": "Debes verificar tu correo antes de iniciar sesión."}), 401
 
-    if barbero:
-        if barbero["verificado"] != 1:
-            return jsonify({"error": "Debes verificar tu correo antes de iniciar sesión."}), 401
+            if barbero["password"] == password:
+                session["barbero_id"] = barbero["id"]
+                return jsonify({"rol": "barbero"})
+            else:
+                return jsonify({"error": "Contraseña incorrecta"}), 401
 
-        if barbero["password"] == password:
-            session["barbero_id"] = barbero["id"]
-            return jsonify({"rol": "barbero"})
-        else:
-            return jsonify({"error": "Contraseña incorrecta"}), 401
+        return jsonify({"error": "Usuario no encontrado"}), 404
 
-    return jsonify({"error": "Usuario no encontrado"}), 404
+    except mysql.connector.Error as e:
+        return jsonify({"error": f"Error en la base de datos: {str(e)}"}), 500
+
+    finally:
+        try:
+            cursor.close()
+            conn.close()
+        except:
+            pass
 
 #Ruta del administrador
 @app.route('/admin')
