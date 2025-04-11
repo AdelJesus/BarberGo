@@ -187,8 +187,9 @@ def login():
                 return jsonify({"error": "Debes verificar tu correo antes de iniciar sesión."}), 401
 
             if cliente["password"] == password:
-                session["cliente_id"] = cliente["id"]
-                return jsonify({"rol": "cliente"})
+                session["user_id"] = cliente["id"]
+                session['rol'] = 'cliente'
+                return jsonify({"mensaje": "Inicio de sesión exitoso", "rol": "cliente", "nombre": cliente["nombre"]})
             else:
                 return jsonify({"error": "Contraseña incorrecta"}), 401
 
@@ -202,7 +203,8 @@ def login():
 
             if barbero["password"] == password:
                 session["barbero_id"] = barbero["id"]
-                return jsonify({"rol": "barbero"})
+                session['rol'] = 'admin'
+                return jsonify({"mensaje": "Inicio de sesión exitoso", "rol": "admin", "nombre": barbero["nombre"]})
             else:
                 return jsonify({"error": "Contraseña incorrecta"}), 401
 
